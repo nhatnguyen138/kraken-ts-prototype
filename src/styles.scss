@@ -1,0 +1,54 @@
+html {
+  color: white;
+  font-size: 18px;
+  p {
+    letter-spacing: 0.03rem;
+    line-height: 1.7;
+  }
+  a {
+    text-decoration: underline;
+    color: white;
+    &:hover {
+      text-decoration: none;
+      color: #0080FF;
+      transition: 0.2s;
+    }
+  }
+}
+
+.app-container {
+  background-color: #0F0F0F;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-width: 350px;
+
+  .app-content {
+    span {
+      font-size: 15px;
+    }
+    button {
+      background-color: #2DC344;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      &:disabled {
+        background-color: #008000;
+        color: #AAAAAA;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+
+  // prevent highlighting/selecting
+  .prevent-highlight {
+    -webkit-user-select: none;    /* Safari */
+    -moz-user-select: none;       /* Firefox */
+    -ms-user-select: none;        /* IE10+/Edge */
+    user-select: none;            /* Standard */
+  }
+}

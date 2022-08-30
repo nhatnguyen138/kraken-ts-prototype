@@ -1,0 +1,41 @@
+.multi-selector-input {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  .rti--container {
+    width: 300px;
+    .rti--tag {
+      background-color: #0080FF;
+    }
+
+    button {
+      background-color: transparent;
+      width: 20px;
+      height: 20px;
+      border-radius: 0;
+      padding: 0;
+      color: white;
+      &:hover {
+        color: red;
+      }
+    }
+
+    input {
+      background-color: #0F0F0F;
+      color: white;
+      font-size: 12px;
+    }
+  }
+
+  button.track-button {
+    width: 80px;
+    height: 40px;
+  }
+}
+
+.pair-suggestions {
+  position: absolute;
+  margin-top: 100px;
+  border: 1px solid yellow;
+}
