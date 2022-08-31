@@ -13,11 +13,12 @@ This whole project is the result within 3 days straight of designing, developing
 ## Technologies Used
 
 Technologies used including:
-1/ ReactJS - with TypeScript template
-2/ React Redux
-3/ Node SASS
-4/ Recharts (to visualise graphs)
-5/ WebSocket and localStorage
+
+1.  ReactJS - with TypeScript template
+2.  React Redux
+3.  Node SASS
+4.  Recharts (to visualise graphs)
+5.  WebSocket and localStorage
 
 
 ## Deploy Instructions
