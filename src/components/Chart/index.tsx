@@ -1,109 +1,62 @@
-import React from "react";
-import { Line } from "react-chartjs-2";
-import Chart from "chart.js/auto";
-import moment from 'moment'
-import { StreamingPlugin, RealTimeScale } from "chartjs-plugin-streaming";
-Chart.register(StreamingPlugin, RealTimeScale);
+import React, { useState, useEffect, useRef } from 'react'
+import { useSelector } from 'react-redux'
+import _ from 'lodash'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip
+} from 'recharts'
+import { getAllSpreads } from '../../store/spread.slice'
+import { chartUtils } from '../../utils/chart.utils'
+interface Props {
+  pair: string
+}
 
+export default function LiveUpdateChart({ pair } : Props) {
+  const spreads = useSelector(getAllSpreads)
+  const [data, setData] = useState<Array<any>>([])
+  const timerRef = useRef<NodeJS.Timeout>()
 
-// const TheChart = require("react-chartjs-2").Chart;
-
-export const LiveUpdateChart = () => {
-
-
-  
-
-const chartColors = {
-  red: "rgb(255, 99, 132)",
-  orange: "rgb(255, 159, 64)",
-  yellow: "rgb(255, 205, 86)",
-  green: "rgb(75, 192, 192)",
-  blue: "rgb(54, 162, 235)",
-  purple: "rgb(153, 102, 255)",
-  grey: "rgb(201, 203, 207)"
-};
-
-// const color = TheChart.helpers.color;
-const data = {
-  datasets: [
-    {
-      label: "Dataset 1 (linear interpolation)",
-      backgroundColor: "rgb(255, 99, 132)",
-      borderColor: "rgb(255, 99, 132)",
-      fill: false,
-      lineTension: 0,
-      borderDash: [8, 4],
-      data: []
-    }
-  ]
-} as any
-  // const data = {
-  //   datasets: [
-  //     {
-  //       label: "Dataset 1",
-  //       fill: false,
-  //       lineTension: 0.4,
-  //       backgroundColor: "#f44336",
-  //       borderColor: "#f44336",
-  //       borderJoinStyle: "miter",
-  //       pointRadius: 0,
-  //       showLine: true,
-  //       data: [],
-  //     },
-  //   ],
-  // } as any;
-
-  const options = {
-    scales: {
-      xAxes: [
-        {
-          type: "realtime",
-          distribution: "linear",
-          realtime: {
-            onRefresh: function(chart:any) {
-              chart.data.datasets[0].data.push({
-                x: moment(),
-                y: Math.random()
-              });
-            },
-            delay: 3000,
-            time: {
-              displayFormat: "h:mm"
-            }
-          },
-          ticks: {
-            displayFormats: 1,
-            maxRotation: 0,
-            minRotation: 0,
-            stepSize: 1,
-            maxTicksLimit: 30,
-            minUnit: "second",
-            source: "auto",
-            autoSkip: true,
-            callback: function(value:any) {
-              return moment(value, "HH:mm:ss").format("mm:ss");
-            }
-          }
-        }
-      ],
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-            max: 1
-          }
-        }
-      ]
-    }
-  } as any;
+  useEffect(() => {
+    // set interval, update chart every 5 seconds
+    timerRef.current = setInterval(() => {
+      const arr = _.last(_.first(spreads)[pair]) as Array<string>     // fetch the latest value in redux store
+      if (arr) {
+        const newEntry = chartUtils.generateNewEntry(arr)
+        setData([...data, newEntry])
+        if (_.size(data)>10)
+          setData(_.drop(data,1))
+      }
+    }, 3000)
+    return () => clearInterval(timerRef.current!)
+  }, [timerRef, data, setData, spreads])
 
   return (
-    <div style={{textAlign: "center", padding: '60px'}}>
-      <div style={{border:'1px solid yellow'}}>
-        <Line data={data} options={options} width={200} height={100} />
-      </div>
-    </div>
-  );
-};
-
-export default LiveUpdateChart
+    <LineChart
+      width={650}
+      height={320}
+      data={data}
+      syncId="anyId"
+      margin={{
+        top: 5,
+        right: 40,
+        left: 40,
+        bottom: 5,
+      }}
+      >
+      <XAxis dataKey="name" />
+      <YAxis type="number" domain={[25000, 30000]}/>
+      <Tooltip />
+      <Line
+        type="monotone"
+        dataKey="price"
+        stroke="#8884d8"
+        fill="#8884d8"
+        isAnimationActive={false}
+        activeDot={{ r: 8 }}
+      />
+    </LineChart>
+  )
+}

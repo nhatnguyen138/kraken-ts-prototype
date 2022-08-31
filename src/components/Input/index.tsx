@@ -7,7 +7,6 @@ import './styles.scss'
 
 export default function Input() {
   const [inputs, setInputs] = useState<Array<string>>([])
-  const [showSuggestions, toggleSuggestions] = useState<boolean>(false)
   const navigate = useNavigate()
 
   // limit to 3 currency pairs
@@ -32,14 +31,11 @@ export default function Input() {
     <>
       <span>
         {inputs.length<3
-            ? "Select your currency pairs (up to 3 pairs):"
-            : "Press the 'Track' button to proceed"
+          ? "Select your currency pairs (up to 3 pairs):"
+          : "Press the 'Track' button to proceed"
         }
       </span>
-      <div className="multi-selector-input"
-        onFocus={() => toggleSuggestions(true)}
-        onBlur={() => toggleSuggestions(false)}
-      >
+      <div className="multi-selector-input">
         <TagsInput
           name={'pairs'}
           value={inputs}
@@ -53,11 +49,6 @@ export default function Input() {
           disabled={inputs.length<=0}
         >Track</button>
       </div>
-      {showSuggestions && 
-        <div className="pair-suggestions">
-            holol
-        </div>
-      }
     </>
   )
 }

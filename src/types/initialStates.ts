@@ -13,6 +13,9 @@ export interface TickerState {
 export interface SpreadState {
   spread: {
     [pair: string]: any       // Array<Array<string>>
+  },
+  mixed: {
+    [pair: string]: any       // Array<Array<number>>
   }
 }
 

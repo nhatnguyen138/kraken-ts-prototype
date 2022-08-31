@@ -16,9 +16,9 @@ export const spreadSlice = createSlice({
       if (_.isNil(state.spread[response[3] as string]))
         state.spread = {
           ...state.spread,
-          [response[3] as string]: response[1]
+          [response[3] as string]: []                              // initiate spread if null/undefined
         }
-      else state.spread[response[3] as string].push(response[1])        // keep adding new spread updates of that currency pair
+      state.spread[response[3] as string].push(response[1])        // keep adding new spread updates of that currency pair
     },
     clearSpreads(state, action: any) {
       state.spread = {}

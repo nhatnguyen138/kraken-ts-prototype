@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import useWebSocket from 'react-use-websocket'
 import _ from 'lodash'
@@ -7,21 +7,21 @@ import { addTicker, getAllTickers } from '../../store/ticker.slice'
 import { addSpread, getAllSpreads } from '../../store/spread.slice'
 import { storageUtils } from '../../utils/localstorage.utils'
 import { wsUtils } from '../../utils/ws.utils'
-
-
+import DetailBox from '../../components/DetailBox'
 import LiveUpdateChart from '../../components/Chart'
 import './styles.scss'
 
-
 const WEB_SOCKET_URI = 'wss://ws.kraken.com'
-const pairs = storageUtils.getJsonItem('pairs')       // get pairs from localStorage
 
 export default function Chart() {
+  const [pairs, setPairs] = useState<Array<string> | null>(storageUtils.getJsonItem('pairs'))  // get pairs from localStorage
+  const [wsUri, setWsUri] = useState<string>('')
+  const timerRef = useRef<NodeJS.Timeout>()
   const {
     sendMessage,
     lastMessage,
     getWebSocket
-  } = useWebSocket(WEB_SOCKET_URI)
+  } = useWebSocket(wsUri)
   const channels = useSelector(getAllChannels)
   const tickers = useSelector(getAllTickers)
   const spreads = useSelector(getAllSpreads)
@@ -32,11 +32,16 @@ export default function Chart() {
       console.error('Error: No currency pairs found')
     else {
       // subscribe to book-25, ticker, and spread
-      sendMessage(wsUtils.subscribeBook25(pairs))
-      sendMessage(wsUtils.subscribeTicker(pairs))
-      sendMessage(wsUtils.subscribeSpread(pairs))
+      timerRef.current = setInterval(() => {
+        setWsUri(WEB_SOCKET_URI)
+        sendMessage(wsUtils.subscribeBook25(pairs))
+        sendMessage(wsUtils.subscribeTicker(pairs))
+        sendMessage(wsUtils.subscribeSpread(pairs))
+        setTimeout(() => getWebSocket()?.close(), 4200)
+      }, 5000)
+      return () => clearInterval(timerRef.current!)
     }
-  }, [])
+  }, [timerRef, setWsUri])
 
   useEffect(() => {
     if (!_.isNil(lastMessage)) {
@@ -47,7 +52,7 @@ export default function Chart() {
         dispatch(addChannel(data))
       if (_.isArray(data)) {                          // check live update
         if (data[2]==="spread") {
-          // add spread thing
+          // add spread
           dispatch(addSpread(data))
         }
         else if (data[2]==="book-25" &&
@@ -65,23 +70,28 @@ export default function Chart() {
 
   const entries = Object.entries(channels[0])
 
-
   return (
     <div className="chart-container">
-      Chart
       <div style={{marginTop: "100px"}}>
-        <button onClick={() => getWebSocket()?.close()}>Close</button>
-        <LiveUpdateChart />
-        <div>Channels:</div>
-        {_.map(entries, (item: Array<any>) => {
+        {_.map(pairs, (pair: string) => {
           return (
-            <p>{item[0]}: {item[1]}</p>
+            <div className="detail-card">
+              <DetailBox pair={pair} />
+              <LiveUpdateChart pair={pair} />
+            </div>
           )
         })}
-        <br />
-        <div>Tickers: {JSON.stringify(tickers)}</div>
-        <br />
-        <div>Spread: {JSON.stringify(spreads)}</div>
+        <div className='channel-info'>
+          <h1>Subscribed Channels</h1>
+          <div className='channel-grid'>
+            {_.map(entries, (item: Array<any>) => {
+                return (
+                  <span>{item[0]}: <span style={{color: '#2DC344'}}>{item[1]}</span></span>
+                )
+              })
+            }
+          </div>
+        </div>
       </div>
     </div>
   )

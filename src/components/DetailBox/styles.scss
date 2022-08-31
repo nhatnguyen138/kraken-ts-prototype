@@ -1,0 +1,35 @@
+.detail-box {
+  background-color: #080808;
+  border-radius: 20px;
+  padding: 20px 50px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: 
+    'title title'
+    'price price'
+    'bid ask';
+  h1 {
+    margin: 15px;
+    margin-left: 0;
+    grid-area: title;
+  }
+  p {
+    margin: 0;
+    margin-top: 10px;
+    color: #686868;
+  }
+  div.price {
+    grid-area: price;
+    font-size: 28px;
+    p {
+      font-size: 1rem;
+    }
+  }
+  div.bid {
+    grid-area: bid;
+    margin-bottom: 25px;
+  }
+  div.ask {
+    grid-area: ask;
+  }
+}

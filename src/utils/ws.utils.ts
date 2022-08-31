@@ -35,9 +35,21 @@ const subscribeSpread = (pairs: Array<string>) => {
   )
 }
 
+const unsubscribeSpread = (pairs: Array<string>) => {
+  return JSON.stringify(
+    {
+      "event": "unsubscribe",
+      "pair": pairs,
+      "subscription": {
+        "name": "spread"
+      }
+    }
+  )
+}
 
 export const wsUtils = {
   subscribeBook25,
   subscribeTicker,
-  subscribeSpread
+  subscribeSpread,
+  unsubscribeSpread
 }
